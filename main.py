@@ -43,6 +43,29 @@ def output_path():
         )
 
 
+def validate_output(path):
+    """Read the written entry back and validate it.
+
+    The entry must be a single sentence: 1-200 characters, not
+    whitespace-only, and with no newline in the middle. Raises
+    SystemExit with a clear message if any check fails.
+    """
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        text = handle.read()
+    if not 1 <= len(text) <= 200:
+        raise SystemExit(
+            f"output validation failed: entry is {len(text)} characters, "
+            "expected 1-200"
+        )
+    if not text.strip():
+        raise SystemExit("output validation failed: entry is whitespace-only")
+    if "\n" in text.strip():
+        raise SystemExit(
+            "output validation failed: entry must be a single sentence "
+            "with no newline in the middle"
+        )
+
+
 def main():
     path = output_path()
     directory = os.path.dirname(path)
@@ -51,6 +74,7 @@ def main():
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(ENTRY)
     os.chmod(path, 0o644)
+    validate_output(path)
 
 
 if __name__ == "__main__":
